@@ -1,61 +1,62 @@
 # Database Module - Exam 
 
 ## Preface
-Si desidera automatizzare il sistema di gestione di un magazzino di ricambi per auto.
-Le specifiche del sistema, acquisite attraverso intervista, sono quelle nel seguito riportate.
-Analizzare tali specifiche, filtrare le ambiguità presenti e poi raggrupparle in modo omogeneo.
-Individuare i collegamenti esistenti tra i vari gruppi di specifiche così ottenuti.
-Realizzare la progettazione del modello concettuale e rappresentare le specifiche (dopo la fase di
-riorganizzazione) con uno schema del modello Entità-Relazione. Effettuare la progettazione logica
-della base di dati del sistema informativo e una sua implementazione sia nel modello relazionale
-che in un modello non relazionale basato sulla gestione dei documenti.
+The main aim is to automate the management system of a car parts warehouse.
+The specifications of the system, acquired through interview, are those below reported.
+Analyze these specifications, filter the ambiguities present and then group them in a homogeneous way.
+Identify the links between the various groups of specifications thus obtained.
+Realize the design of the conceptual model and represent the specifications (after the phase of
+reorganization) with a schema of the Entity-Relationship model. Carry out the logical design
+of the database of the information system and its implementation both in the relational model
+than in a non relational model based on document management.
 
 ## Specifications
-Si consideri una base di dati che contiene informazioni sugli acquisti dei clienti di un negozio di
-ricambi per auto.
-Dei clienti interessano il codice fiscale o la partita iva, che li identifica, il nome, l’indirizzo di residenza
-completo di CAP, città, provincia e regione.
-Di ogni spesa di un cliente interessano il numero della fattura, che la identifica, la data, il totale della
-spesa, la modalità del pagamento (elettronico, contante) e, per ogni prodotto, la quantità, il prezzo
-pagato e l’eventuale sconto praticato (prodotto in promozione).
-Di ogni ricambio interessano il codice, che lo identifica, la descrizione, la categoria, i veicoli
-compatibili, il costo unitario e il prezzo di vendita. I prodotti possono essere interessati da
-promozioni, con riduzione temporanea del prezzo, a partire da una certa data e per un numero
-prefissato di giorni.
+Consider a database that contains information about the purchases of customers of a store of
+car parts.
+Customers are interested in the tax code or VAT number, which identifies them, the name, the address of residence
+complete with zip code, city, province and region.
+Of each expense of a customer concern the number of the invoice, which identifies it, the date, the total of
+shopping, the method of payment (electronic, cash) and, for each product, the quantity, the price
+paid and any discount applied (product on promotion).
+Of each part concerned the code, which identifies it, the description, the category, the vehicles
+compatible, the unit cost and the selling price. Products may be affected by
+promotions, with temporary price reduction, from a certain date and for a number
+set of days.
 
 ## Required SQL queries 
 
-1. Per uno specifico cliente, determinare le quantità di ciascun prodotto acquistato in un
-determinato periodo;
-2. Per un determinato prodotto, determinare il numero dei clienti distinti che lo hanno
-acquistato in un determinato periodo;
-3. Individuare tutti i clienti che hanno acquistato un prodotto in promozione, indicandone il
-CAP di residenza;
-4. Per uno specifico CAP, individuare i clienti che hanno fatto acquisti in un determinato
-periodo;
-5. Per uno specifico modello d’auto, individuare il fatturato degli articoli in un determinato
-periodo;
-6. Per ciascun articolo in promozione determinarne la quantità venduta in un determinato
-periodo;
-7. I clienti che non hanno effettuato un pagamento elettronico nell’anno in corso;
-8. Il cliente che ha speso di più in un determinato periodo;
-9. Per uno specifico CAP la spesa media per fattura in un determinato periodo;
-10. Per ciascuna categoria di prodotti il totale del prezzo pagato per quelli venduti in un
-determinato periodo.
+1. For a specific customer, determine the quantities of each product purchased in a
+given period;
+2. For a given product, determine the number of distinct customers who have
+purchased in a given period;
+3. Identify all customers who have purchased a promotional product, indicating the
+Postal code of residence;
+4. For a specific CAP, identify customers who have made purchases in a particular CAP
+period;
+5. For a specific car model, identify the turnover of the items in a given
+period;
+6. For each promotion item, determine the quantity sold in a given item
+period;
+7. Customers who have not made an electronic payment in the current year;
+8. The customer who has spent more in a given period;
+9. For a specific postal code, the average expenditure per invoice over a given period;
+10. For each category of product, the total price paid for those sold in a
+given period.
 
 ## Analysis 
 
 ### Assumptions
-Dato il corrente database si effettuano le seguenti assunzioni: 
--	Si assume che all’interno del database sono presenti tutte le Regioni, Province, Città e CAP italiani. 
--	Ogni cliente presente nel database ha acquistato almeno una volta presso il magazzino di ricambi per auto;
--	Ogni prodotto appartiene a una sola categoria;
--	Ogni ricambio è compatibile a uno o più veicoli; 
--	Il numero fattura equivale allo scontrino di avvenuto acquisto;
--	A una promozione appartengono uno o più prodotti;
--	Un prodotto può avere 0 o N promozioni;
--	Se il Brand è presente ha almeno un veicolo nel database;
--	
+Given the current database the following assumptions are made: 
+
+-  It's assumed that all Italian Regions, Provinces, Cities and Postcodes are present in the database
+-  Every customer in the database purchased at least once at the car parts warehouse
+-  Each product belongs to a single category
+-  Each replacement is compatible with one or more vehicles
+-  The invoice number is equivalent to the receipt of purchase
+-  One or more products belong to a promotion
+-  A product may have 0 or N promotions
+-  If the Brand is present has at least one vehicle in the database
+
 ## Key-points related to the main entities: 
 -	Key-points related to Customer: For each customer it’s known about name, surname, identifiy code and residence address. A customer could be a Company or a Private Customer.
 -	Key-points related to Order: For each order that is placed it’s known a identify code and the data where order has been placed. Each order contains one or more products.
@@ -72,3 +73,18 @@ Dato il corrente database si effettuano le seguenti assunzioni:
 |     Promotion    |     Reduction of   Price Cost                                                           |     Product                         |     A special percentage   off on a price product. This condition could interest one or more product or   neither.             |
 |     Payment      |             /                                                                           |     Expense,   Product, Customer    |     An order   could be pay using more than a Payment Type. Cash or electronic payment.                                        |
 | Category         | A category standardizes a group of products that share similar qualities or functions.  |     /                               | Product                                                                                                                        |
+# ER Model 
+## First Version 
+
+[IMMAGINE SCHEMA] 
+
+On the first version we can find different entities.
+- **Customer**: this entity represents a person who buy prodcuts at the special parts shop. The Customer has some data that we use to identify himself. The <mark>id_code</mark> is the unique code client. We know also the _Residence Address_ and general informations as name and surname. The entity presents the specification _Company_ or _PrivateCustomer_ useful to understand the type of Customer. Based on the result the Customer will be associated on the attribute _VAT_ or _id_code_. 
+
+A Customer could place one or more order. 
+
+- **Order**: the entity _order_ represents the purchase that could contains at least one or more products. Each order got the idenitifier code, _id_code_, and the data where is placed. 
+
+A order belongs to a single customer. 
+
+

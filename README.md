@@ -139,7 +139,7 @@ Order belongs to only and only one Customer.
 
 - **Product**: the entity product identifies all the products available in database and ready to be sold. Each _Product_ has a `id_product`, name, short description, selling price and the unit cost. 
 
-- **OnSale**: the entity _OnSale_ represents all the products that are on sale during a defined time. The identifier is `id_promo`and the attributes are _PercentOff_, _DataStart_ and _DataFinish_. 
+- **Promotion**: the entity Promotion represents all the products that are on sale during a defined time. The identifier is `id_promo`and the attributes are _PercentOff_, _DataStart_ and _DataFinish_. 
 
 - **Vehicle**: This entity is strictly linked to the entity _Product_ because represents all the vehicles that are present on the database that could be compatible with the single special parts. This entity has `id_vehicle`and the attribute _name_vehicle_ to nominate all the actors. 
 
@@ -169,21 +169,21 @@ A vehicle could be produced by only a Brand, but a Brand that is present in the 
 
 - **Order** (<ins>ID_Order</ins>, Data, _Customer, _Payment_)
 
-- **OrderContainsProduct** (_ID_Customer_, _ID_Product_, Quantity) 
+- **OrderContainsProduct** (<ins>_ID_Customer_</ins>, <ins>_ID_Payment</ins>, Quantity, Price, Discount Price) 
 
 - **Product** (<ins>ID_Product</ins>, Name, Description, UnitCost, SellingPrice)
 
 - **Category_Product** (<ins>ID_Cat_Prod</ins>, Name_Cat_Prod, _ID_Product_) 
 
-- **OnSale** (<ins>ID_Promo</ins>, PercentOff, DataStart, Data Finish, _Products_) 
+- **Promotion** (<ins>ID_Promo</ins>, PercentOff, DataStart, Data Finish, _Product_) 
 
 - **Vehicle** (<ins>ID_Order</ins>, Name_Vehicle, _ID_Brand_)
 
-- **ProductCompatibleVehicle** (_ID_Product_, _ID_Vehicle_) 
+- **ProductCompatibleVehicle** (<ins>_ID_Product_</ins>, <ins>_ID_Vehicle_</ins>) 
 
 - **Brand** (<ins>ID_Brand</ins>, Name_Brand)
 
-- **Payment** (<ins>ID_Payment</ins>, PaymentType, Tipo)
+- **Payment** (<ins>ID_Payment</ins>, PaymentType, Total)
 
 - **CAP** (<ins>Cap_Code</ins>, Name, _City_) 
 
@@ -192,3 +192,171 @@ A vehicle could be produced by only a Brand, but a Brand that is present in the 
 - **Province** (<ins>ID_Province</ins>, Name, _Region_) 
 
 - **Region** (<ins>ID_Region</ins>, Name)
+
+ # Modello Fisico 
+ 
+## SQL Queries 
+
+**Payment**
+```
+create table Payment(
+	id char(36) default (UUID()) not null, 
+	payment_type ENUM('card', 'cash') not null,
+	total FLOAT not null,
+	id_transaction char(10),
+	primary key (id),
+	CONSTRAINT `is_valid_payment_chk` CHECK (
+		(payment_type = 'cash' and id_transaction is null) OR (payment_type = 'card' and id_transaction is not null)
+	)
+);
+select UUID() from dual
+drop table payment
+SET foreign_key_checks = 0;
+drop table payment
+SET foreign_key_checks = 1;
+```
+**Customer** 
+```
+create table Customer(
+	id varchar(36) not null default UUID(),
+	name varchar(30) not null,
+	surname varchar(30) not null,
+	cap char(5) not null,
+	customer_type char(1) not null, 
+	fiscal_code varchar(16),
+	vat varchar(16),
+	primary key (id),
+	foreign key (cap) references CAP(cap_code),
+	CONSTRAINT `customer_type_chk` CHECK (customer_type in ('C', 'P')),
+	CONSTRAINT `is_valid_customer_chk` CHECK (
+		(customer_type = 'P' and fiscal_code is not null and vat is null) 
+		or (customer_type = 'C' and vat is not null and fiscal_code is null)
+	)
+)
+```
+**Order** 
+```
+create table `order`(
+	id varchar(36) not null default UUID(),
+	id_customer varchar(36) not null,
+	id_payment varchar(36) not null,
+	date_order date not null,
+	primary key(id),
+	foreign key (id_customer) references Customer(id),
+	foreign key (id_payment) references Payment(id)
+)
+```
+**OrderContainsProduct**
+```
+create table OrderContainsProduct(
+	id_product int not null,
+	id_order varchar(36) not null, 
+	quantity int not null,
+	price int not null,
+	discount_presence int not null, 
+	primary key (id_product, id_order),
+	foreign key (id_product) references Product(id),
+	foreign key (id_order) references `order`(id)
+)
+```
+**Promotion**
+```
+create table Promotion(
+	id int not null auto_increment,
+	percent_off float not null,
+	date_start date not null,
+	date_finish date not null,
+	id_product int not null,
+	primary key (id),
+	foreign key (id_product) references Product(id)
+)
+```
+**Product**
+```
+create table Product(
+	id int not null auto_increment, 
+	name varchar(30) not null,
+	description varchar (40) not null, 
+	unit_cost float not null,
+	selling_price float not null,
+	id_category int not null,
+	primary key(id),
+	foreign key(id_category) references Category_Product(id)
+)
+```
+**ProductCompatibleVehicle**
+```
+create table ProductCompatibleVehicle(
+	id_product int not null, 
+	id_vehicle int not null,
+	primary key(id_product, id_vehicle),
+	foreign key(id_product) references Product(id),
+	foreign key(id_vehicle) references Vehicle(id)
+)
+```
+**Category_Product**
+```
+create table Category_Product(
+	id int not null auto_increment,
+	name varchar(25) not null,
+	primary key (id)
+)
+```
+**Vehicle**
+```
+create table Vehicle(
+	id int not null auto_increment,
+	name varchar(25) not null,
+	type ENUM('Suv', 'Supercar', 'Utilitarian', 'Sedan', 'Truck' ) not null,
+	id_brand int not null,
+	primary key(id),
+	foreign key (id_brand) references Brand(id)
+)
+```
+**Brand**
+```
+create table Brand(
+	id int not null auto_increment,
+	name char(25) not null,
+	primary key(id)
+)
+```
+
+**Region** 
+```
+  create table Region(
+	id int not null auto_increment,
+  name varchar(25) not null,
+	primary key(id)
+)
+```
+
+**Province**
+```
+create table Province(
+	id char(2) not null,
+	name varchar(10) not null, 
+	id_region int not null,
+	primary key(id),
+	foreign key (id_region) references Region(id)
+)
+```
+**City** 
+```
+create table City(
+	id int not null auto_increment,
+	name varchar(25) not null, 
+	id_province char(2) not null,
+	primary key (id),
+	foreign key (id_province) references Province(id)
+)
+```
+**CAP**
+```
+create table CAP(
+	cap_code char(5) not null, 
+	id_city int not null,
+	primary key (cap_code),
+	foreign key (id_city) references City(id)
+)
+```

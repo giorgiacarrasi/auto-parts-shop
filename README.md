@@ -77,7 +77,7 @@ Given the current database the following assumptions are made:
 # ER Model 
 ## First Version 
 
-<a href="https://ibb.co/G9FxBbM"><img src="https://i.ibb.co/f9Q1BPN/nonristrutturato.png" alt="nonristrutturato" border="0"></a>
+<a href="https://ibb.co/Nx5q82D"><img src="https://i.ibb.co/zspgyV9/nonristr.png" alt="nonristr" border="0"></a>
 
 On the first version we can find different entities:
 
@@ -112,8 +112,7 @@ A vehicle could be produced by only a Brand, but a Brand that is present in the 
 # ER Model 
 ## Second Version - Restructured and normalized 
 
-<a href="https://ibb.co/kx2gGwX"><img src="https://i.ibb.co/KXxj5fW/ristrutturato.png" alt="ristrutturato" border="0"></a>
-
+<a href="https://ibb.co/3mn5kwM"><img src="https://i.ibb.co/Jj9WCNy/image-2.png" alt="image-2" border="0"></a>
 On the second version we got the following entities: 
 
 - **CAP**: Identifies all the postal codes that belong to the same location. We ca identify it with the `id_cap`. A CAP belongs to only a city. A Customer resides in a specifical CAP. 

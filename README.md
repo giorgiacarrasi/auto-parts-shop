@@ -192,15 +192,15 @@ A vehicle could be produced by only a Brand, but a Brand that is present in the 
 
 - **Region** (<ins>ID_Region</ins>, Name)
 
- # Modello Fisico 
+ # Physical model  
  
-## SQL Queries 
+The Physical models are created by following the SQLite standards.
 
 **Payment**
 ```
 create table Payment(
-	id char(36) default (UUID()) not null, 
-	payment_type ENUM('card', 'cash') not null,
+	id char(36) not null, 
+	payment_type varchar(10) CHECK( payment_type IN ('card','cash') ) not null,
 	total FLOAT not null,
 	id_transaction char(10),
 	primary key (id),
@@ -208,16 +208,11 @@ create table Payment(
 		(payment_type = 'cash' and id_transaction is null) OR (payment_type = 'card' and id_transaction is not null)
 	)
 );
-select UUID() from dual
-drop table payment
-SET foreign_key_checks = 0;
-drop table payment
-SET foreign_key_checks = 1;
 ```
 **Customer** 
 ```
 create table Customer(
-	id varchar(36) not null default UUID(),
+	id varchar(36) not null,
 	name varchar(30) not null,
 	surname varchar(30) not null,
 	cap char(5) not null,
@@ -231,19 +226,19 @@ create table Customer(
 		(customer_type = 'P' and fiscal_code is not null and vat is null) 
 		or (customer_type = 'C' and vat is not null and fiscal_code is null)
 	)
-)
+);
 ```
 **Order** 
 ```
 create table `order`(
-	id varchar(36) not null default UUID(),
+	id char(36) not null,
 	id_customer varchar(36) not null,
 	id_payment varchar(36) not null,
 	date_order date not null,
 	primary key(id),
 	foreign key (id_customer) references Customer(id),
 	foreign key (id_payment) references Payment(id)
-)
+);
 ```
 **OrderContainsProduct**
 ```
@@ -256,32 +251,30 @@ create table OrderContainsProduct(
 	primary key (id_product, id_order),
 	foreign key (id_product) references Product(id),
 	foreign key (id_order) references `order`(id)
-)
+);
 ```
 **Promotion**
 ```
 create table Promotion(
-	id int not null auto_increment,
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	percent_off float not null,
 	date_start date not null,
 	date_finish date not null,
 	id_product int not null,
-	primary key (id),
 	foreign key (id_product) references Product(id)
-)
+);
 ```
 **Product**
 ```
 create table Product(
-	id int not null auto_increment, 
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name varchar(30) not null,
 	description varchar (40) not null, 
 	unit_cost float not null,
 	selling_price float not null,
 	id_category int not null,
-	primary key(id),
 	foreign key(id_category) references Category_Product(id)
-)
+);
 ```
 **ProductCompatibleVehicle**
 ```
@@ -291,43 +284,39 @@ create table ProductCompatibleVehicle(
 	primary key(id_product, id_vehicle),
 	foreign key(id_product) references Product(id),
 	foreign key(id_vehicle) references Vehicle(id)
-)
+);
 ```
 **Category_Product**
 ```
 create table Category_Product(
-	id int not null auto_increment,
-	name varchar(25) not null,
-	primary key (id)
-)
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name varchar(25) not null
+);
 ```
 **Vehicle**
 ```
 create table Vehicle(
-	id int not null auto_increment,
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name varchar(25) not null,
-	type ENUM('Suv', 'Supercar', 'Utilitarian', 'Sedan', 'Truck' ) not null,
+	type varchar(20) CHECK( type IN ('Suv', 'Supercar', 'Utilitarian', 'Sedan', 'Truck' ) ) not null,
 	id_brand int not null,
-	primary key(id),
 	foreign key (id_brand) references Brand(id)
-)
+);
 ```
 **Brand**
 ```
 create table Brand(
-	id int not null auto_increment,
-	name char(25) not null,
-	primary key(id)
-)
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name char(25) not null
+);
 ```
 
 **Region** 
 ```
-  create table Region(
-	id int not null auto_increment,
-  name varchar(25) not null,
-	primary key(id)
-)
+create table Region(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+  	name varchar(25) not null
+);
 ```
 
 **Province**
@@ -338,17 +327,16 @@ create table Province(
 	id_region int not null,
 	primary key(id),
 	foreign key (id_region) references Region(id)
-)
+);
 ```
 **City** 
 ```
 create table City(
-	id int not null auto_increment,
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name varchar(25) not null, 
 	id_province char(2) not null,
-	primary key (id),
 	foreign key (id_province) references Province(id)
-)
+);
 ```
 **CAP**
 ```
@@ -357,5 +345,127 @@ create table CAP(
 	id_city int not null,
 	primary key (cap_code),
 	foreign key (id_city) references City(id)
-)
+);
 ```
+## NoSQL 
+Structures used for the NoSQL Database are below that will be from SQL structure. 
+
+**Examples**
+
+_Customer_
+```
+{
+  "_id": "TNIVTL87I23P732H",
+  "name": "Tania Vitale",
+  "birth_date": "1987-02-13 00:00:00",
+  "sex": "F",
+  "CAP": 25460,
+  "address": "via vitale",
+  "city": "Rome",
+  "province": "RM",
+  "region": "Lazio"
+}
+```
+
+_Order_ 
+```
+{
+   "_id":13,
+   "date":{
+      "$date":{
+         "$numberLong":"1628812800000"
+      }
+   },
+   "customer":"PLOCRS54P83D223F",
+   "total":618.02,
+   "payment_type":"card",
+   "order_composition":[
+      {
+         "product":3,
+         "price":11,
+         "quantity":1
+      },
+      {
+         "product":4,
+         "price":7.2,
+         "quantity":1
+      },
+      {
+         "product":5,
+         "price":120,
+         "quantity":1
+      },
+      {
+         "product":6,
+         "price":180,
+         "quantity":1
+      },
+      {
+         "product":7,
+         "price":300,
+         "quantity":1
+      }
+   ]
+}
+```
+
+_Product_ 
+```
+{
+   "_id":1,
+   "description":"Paraurti Posteriore P4X",
+   "unit_price":42,
+   "price":55,
+   "category":"paraurti",
+   "vehicle_compatible":[
+      1,
+      3
+   ],
+   "promotion":[
+      {
+         "start":{
+            "$date":{
+               "$numberLong":"1612828800000"
+            }
+         },
+         "end":{
+            "$date":{
+               "$numberLong":"1615075199999"
+            }
+         },
+         "discount":10
+      },
+      {
+         "start":{
+            "$date":{
+               "$numberLong":"1635807600000"
+            }
+         },
+         "end":{
+            "$date":{
+               "$numberLong":"1636934399999"
+            }
+         },
+         "discount":20
+      }
+   ]
+}
+```
+
+_Vehicle_ 
+```
+{
+   "_id":1,
+   "name":"Giulietta",
+   "type":"Utili",
+   "brand":"Alfa Romeo"
+}
+```
+
+# Operations and Queries 
+
+**SQL** 
+Check db_sql notebook.
+
+**NoSQL** 
+Check db_no_sql notebook. 

@@ -465,7 +465,7 @@ _Vehicle_
 # Operations and Queries 
 
 **SQL** 
-Check db_sql notebook.
+Check db_sql notebook or execute it on [Colab](https://colab.research.google.com/github/giorgiacarrasi/auto-parts-shop/blob/main/db_sql.ipynb).
 
 **NoSQL** 
-Check db_no_sql notebook. 
+Check db_no_sql notebook or execute it on [Colab](https://colab.research.google.com/github/giorgiacarrasi/auto-parts-shop/blob/main/db_no_sql.ipynb).
